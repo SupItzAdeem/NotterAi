@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "630333430724",
+    "project_id": "notterai",
+    "storage_bucket": "notterai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630333430724:android:bab20e22332820488b6291",
+        "android_client_info": {
+          "package_name": "week11.st968323.finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKnUW4PtNXrVTmOlsGPhFAJKiqCtxQBS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
