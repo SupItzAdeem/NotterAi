@@ -22,7 +22,6 @@ class NoteViewModel(
     val noteActionState: StateFlow<UiState<Unit>> = _noteActionState
 
     init {
-        observeNotes()
     }
 
     private fun observeNotes() {
@@ -73,5 +72,9 @@ class NoteViewModel(
                 Resource.Loading -> {}
             }
         }
+    }
+
+    fun startObservingNotes() {
+        observeNotes()
     }
 }

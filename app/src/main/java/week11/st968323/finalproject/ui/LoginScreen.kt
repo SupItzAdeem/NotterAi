@@ -1,14 +1,16 @@
 package week11.st968323.finalproject.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import week11.st968323.finalproject.ui.components.InputField
+import week11.st968323.finalproject.ui.components.Lavender
+import week11.st968323.finalproject.ui.components.LavenderButton
 import week11.st968323.finalproject.viewmodel.AuthViewModel
 
 @Composable
@@ -16,62 +18,51 @@ fun LoginScreen(
     authViewModel: AuthViewModel,
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit
-)
- {
+) {
     val authState by authViewModel.authState.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(authState.data) {
-        if (authState.data != null) {
-            onLoginSuccess()
-        }
+        if (authState.data != null) onLoginSuccess()
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(28.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text("Login", style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(30.dp))
 
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Login")
+        InputField(email, "Email") { email = it }
+        Spacer(Modifier.height(16.dp))
+        InputField(password, "Password") { password = it }
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") }
+        authState.error?.let {
+            Spacer(Modifier.height(8.dp))
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        LavenderButton("Login") {
+            authViewModel.login(email, password)
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Row {
+            Text("Don't have an account? ", color = Color.Black)
+
+            Text(
+                "Register",
+                color = Lavender,
+                modifier = Modifier.clickable { onNavigateToRegister() }
             )
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") }
-            )
-
-            authState.error?.let {
-                Text(text = it)
-            }
-
-            if (authState.isLoading) {
-                CircularProgressIndicator()
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(onClick = { authViewModel.login(email, password) }) {
-                Text("Login")
-            }
-
-            Button(onClick = onNavigateToRegister) {
-                Text("Register")
-            }
         }
     }
 }

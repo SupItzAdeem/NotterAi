@@ -1,14 +1,16 @@
 package week11.st968323.finalproject.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import week11.st968323.finalproject.ui.components.InputField
+import week11.st968323.finalproject.ui.components.Lavender
+import week11.st968323.finalproject.ui.components.LavenderButton
 import week11.st968323.finalproject.viewmodel.AuthViewModel
 
 @Composable
@@ -19,58 +21,52 @@ fun RegisterScreen(
 ) {
     val authState by authViewModel.authState.collectAsState()
 
+    var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(authState.data) {
-        if (authState.data != null) {
-            onRegisterSuccess()
-        }
+        if (authState.data != null) onRegisterSuccess()
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(28.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text("Create Account", style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(30.dp))
 
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Register")
+        InputField(fullName, "Full Name") { fullName = it }
+        Spacer(modifier = Modifier.height(16.dp))
+        InputField(email, "Email") { email = it }
+        Spacer(modifier = Modifier.height(16.dp))
+        InputField(password, "Password") { password = it }
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") }
-            )
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") }
-            )
-
-            authState.error?.let {
-                Text(text = it)
-            }
-
-            if (authState.isLoading) {
-                CircularProgressIndicator()
-            }
-
+        authState.error?.let {
             Spacer(modifier = Modifier.height(8.dp))
-
-            Button(onClick = { authViewModel.register(email, password) }) {
-                Text("Create Account")
-            }
-
-            Button(onClick = onBackToLogin) {
-                Text("Back to Login")
-            }
+            Text(it, color = MaterialTheme.colorScheme.error)
         }
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        LavenderButton("Register") {
+            authViewModel.register(fullName, email, password)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row {
+            Text("Already have an account? ", color = Color.Black)
+
+            Text(
+                "Login",
+                color = Lavender,
+                modifier = Modifier.clickable { onBackToLogin() }
+            )
+        }
+
     }
 }

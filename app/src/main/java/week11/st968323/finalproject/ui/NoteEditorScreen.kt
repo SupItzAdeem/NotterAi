@@ -1,30 +1,57 @@
 package week11.st968323.finalproject.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import week11.st968323.finalproject.ui.components.LavenderButton
+import week11.st968323.finalproject.ui.components.LavenderTopBar
 import week11.st968323.finalproject.viewmodel.NoteViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditorScreen(
     noteViewModel: NoteViewModel,
     noteId: String,
     onBack: () -> Unit
 ) {
-    val noteListState by noteViewModel.noteListState.collectAsState()
+    val notesState by noteViewModel.noteListState.collectAsState()
 
-    // state fields for editing
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
 
-    // Load note values only when editing
-    LaunchedEffect(noteId, noteListState.data) {
+    // Load existing note for editing
+    LaunchedEffect(noteId, notesState.data) {
         if (noteId.isNotEmpty()) {
-            val note = noteListState.data?.find { it.id == noteId }
+            val note = notesState.data?.find { it.id == noteId }
             if (note != null) {
                 title = note.title
                 content = note.content
@@ -32,61 +59,92 @@ fun NoteEditorScreen(
         }
     }
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            LavenderTopBar(
+                title = "Notter AI",
+                onBack = onBack
+            )
+        }
+    ) { padding ->
         Column(
-            modifier = Modifier
+            Modifier
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(20.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            Text(
-                text = if (noteId.isEmpty()) "Create Note" else "Edit Note",
-                style = MaterialTheme.typography.titleLarge
-            )
-
+            // Title Field
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
             )
 
+            // Content Field
             OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
-                label = { Text("Content") },
+                label = { Text("Write your note here...") },
                 modifier = Modifier
-                    .height(200.dp)
                     .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                maxLines = Int.MAX_VALUE,
+                shape = RoundedCornerShape(12.dp)
             )
 
-            // STT microphone
-            IconButton(
-                onClick = {
-                    // implemented Speech-to-Text here
-                }
+            // Mic + Speaker Buttons
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Mic, contentDescription = "Record audio")
-            }
-
-            Button(
-                onClick = {
-                    if (noteId.isEmpty()) {
-                        // Create new note
-                        noteViewModel.addNote(title, content)
-                    } else {
-                        // Update existing note
-                        noteViewModel.updateNote(noteId, title, content)
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = { /* TODO STT */ }) {
+                        Icon(
+                            Icons.Default.Mic,
+                            contentDescription = "Record",
+                            tint = Color(0xFF7A44A1) // purple like Figma
+                        )
                     }
-                    onBack()
                 }
-            ) {
-                Text(if (noteId.isEmpty()) "Save Note" else "Update Note")
+
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = { /* TODO TTS */ }) {
+                        Icon(
+                            Icons.Default.VolumeUp,
+                            contentDescription = "Read aloud",
+                            tint = Color(0xFF7A44A1)
+                        )
+                    }
+                }
             }
 
-            Button(onClick = onBack) {
-                Text("Cancel")
+            // Save / Update Button
+            LavenderButton(
+                text = if (noteId.isEmpty()) "Save Note" else "Update Note"
+            ) {
+                if (noteId.isEmpty()) {
+                    noteViewModel.addNote(title, content)
+                } else {
+                    noteViewModel.updateNote(noteId, title, content)
+                }
+                onBack()
             }
         }
     }

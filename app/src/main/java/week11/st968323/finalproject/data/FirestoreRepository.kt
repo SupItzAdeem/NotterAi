@@ -2,6 +2,7 @@ package week11.st968323.finalproject.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -11,7 +12,8 @@ import week11.st968323.finalproject.util.Resource
 
 class FirestoreRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firebaseStorage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
     companion object {
         private const val NOTES_COLLECTION = "notes"
