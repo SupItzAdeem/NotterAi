@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +27,13 @@ fun NotesScreen(
     onEditNote: (String) -> Unit
 ) {
     val listState by noteViewModel.noteListState.collectAsState()
+    val filteredNotes by noteViewModel.filteredNotes.collectAsState()
+    val searchQuery by noteViewModel.searchQuery.collectAsState()
     val userName by authViewModel.userName.collectAsState()
+
+    LaunchedEffect(Unit) {
+        noteViewModel.resetSearch()
+    }
 
     Scaffold(
         topBar = {
@@ -54,6 +61,11 @@ fun NotesScreen(
                 Text("Hello $userName", style = MaterialTheme.typography.headlineSmall)
             }
 
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = { noteViewModel.onSearchQueryChange(it) }
+            )
+
             Spacer(Modifier.height(20.dp))
 
             LazyVerticalGrid(
@@ -61,12 +73,31 @@ fun NotesScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                items(listState.data.orEmpty()) { note ->
+                items(filteredNotes) { note ->
                     NoteCard(note) { onEditNote(note.id) }
                 }
             }
         }
     }
+}
+
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        placeholder = { Text("Search notes…") },
+        leadingIcon = {
+            Icon(Icons.Default.Search, contentDescription = "Search")
+        },
+        singleLine = true
+    )
 }
 
 @Composable
