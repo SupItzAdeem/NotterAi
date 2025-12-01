@@ -26,6 +26,7 @@ fun LoginScreen(
 
     LaunchedEffect(authState.data) {
         if (authState.data != null) onLoginSuccess()
+        println("AUTH STATE = ${authState.data}")
     }
 
     Column(

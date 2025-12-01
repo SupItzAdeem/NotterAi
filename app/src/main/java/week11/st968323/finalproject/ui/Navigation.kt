@@ -16,6 +16,7 @@ object NavRoutes {
     const val NOTES = "notes"
     const val EDITOR = "editor"
     const val PROFILE = "profile"
+    const val PICK_IMAGE = "pickImage"
 }
 
 @Composable
@@ -23,13 +24,14 @@ fun AppNavGraph(navController: NavHostController) {
     val authViewModel: AuthViewModel = viewModel()
     val noteViewModel: NoteViewModel = viewModel()
 
-    LaunchedEffect(authViewModel.currentUser) {
+    LaunchedEffect(Unit) {
         if (authViewModel.currentUser != null) {
             noteViewModel.startObservingNotes()
         }
     }
 
-    val startDestination = NavRoutes.LOGIN
+    val startDestination =
+        if (authViewModel.currentUser != null) NavRoutes.NOTES else NavRoutes.LOGIN
 
     NavHost(
         navController = navController,
@@ -44,8 +46,7 @@ fun AppNavGraph(navController: NavHostController) {
                     navController.navigate(NavRoutes.NOTES) {
                         popUpTo(NavRoutes.LOGIN) { inclusive = true }
                     }
-                }
-                ,
+                },
                 onNavigateToRegister = {
                     navController.navigate(NavRoutes.REGISTER)
                 }
@@ -60,8 +61,7 @@ fun AppNavGraph(navController: NavHostController) {
                     navController.navigate(NavRoutes.NOTES) {
                         popUpTo(NavRoutes.LOGIN) { inclusive = true }
                     }
-                }
-                ,
+                },
                 onBackToLogin = { navController.popBackStack() }
             )
         }
@@ -85,7 +85,6 @@ fun AppNavGraph(navController: NavHostController) {
             )
         ) { entry ->
             val noteId = entry.arguments?.getString("id") ?: ""
-
             NoteEditorScreen(
                 noteViewModel = noteViewModel,
                 noteId = noteId,
@@ -103,13 +102,13 @@ fun AppNavGraph(navController: NavHostController) {
                         popUpTo(NavRoutes.NOTES) { inclusive = true }
                     }
                 },
-                onEditImage = { navController.navigate("pickImage") }
+                onEditImage = { navController.navigate(NavRoutes.PICK_IMAGE) }
             )
         }
 
-        composable("pickImage") {
+        composable(NavRoutes.PICK_IMAGE) {
             ImagePicker(
-                authViewModel,
+                authViewModel = authViewModel,
                 onDone = { navController.popBackStack() }
             )
         }
