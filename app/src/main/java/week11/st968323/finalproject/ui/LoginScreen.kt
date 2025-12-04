@@ -2,11 +2,16 @@ package week11.st968323.finalproject.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import week11.st968323.finalproject.ui.components.InputField
 import week11.st968323.finalproject.ui.components.Lavender
@@ -23,6 +28,7 @@ fun LoginScreen(
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState.data) {
         if (authState.data != null) onLoginSuccess()
@@ -41,7 +47,29 @@ fun LoginScreen(
 
         InputField(email, "Email") { email = it }
         Spacer(Modifier.height(16.dp))
-        InputField(password, "Password") { password = it }
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = if (passwordVisible)
+                VisualTransformation.None
+            else
+                PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible)
+                            Icons.Default.VisibilityOff
+                        else
+                            Icons.Default.Visibility,
+                        contentDescription = "Toggle Password Visibility"
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         authState.error?.let {
             Spacer(Modifier.height(8.dp))
